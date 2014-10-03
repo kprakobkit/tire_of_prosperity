@@ -1,5 +1,5 @@
 class Controller
-  def convert_string_to_objects(string)
+  def convert_string_to_objects(string) # stay
     list_of_letter = []
 
     string.split("").each_with_index do |letter, index|
@@ -9,7 +9,7 @@ class Controller
     list_of_letter
   end
 
-  def hide_phrase(phrase)
+  def hide_phrase(phrase) # stay
     list_of_letter = convert_string_to_objects(phrase)
     letters_to_hide = phrase.split("").sample(phrase.length*0.5)
     exceptions =[" ", ",", ".", "?", "!", ";", ":"]
@@ -26,24 +26,13 @@ class Controller
     list_of_letter
   end
 
-  def show_hidden_phrase(phrase_with_hidden_letters)
-    phrase_with_hidden_letters.each do |letter|
-      if letter.hidden == true
-        print "_"
-      else
-        print "#{letter.letter}"
-      end
-    end
-    puts
-  end
-
   def done?(hidden_phrase, number_of_wrong)
 
-    if number_of_wrong > 4
-      puts "\e[H\e[2J"
-      puts "you lose"
-      return true
-    end
+    # if number_of_wrong > 4
+    #   puts "\e[H\e[2J"
+    #   puts "you lose"
+    #   return true
+    # end
 
     hidden_phrase.each do |letter|
       if letter.hidden == true
@@ -85,16 +74,11 @@ class Controller
   # run program
 
   def play
-    puts "\e[H\e[2J"
-    puts "Welcome to Tire of Prosperity!!!!!"
-    puts
-    # pick_a_category # pick category
-
-    puts "Here is your phrase. Guess away..."
+    View.welcome_screen
 
     answer_phrase = pick_a_category
     hidden_phrase = hide_phrase(answer_phrase)
-    show_hidden_phrase(hidden_phrase)
+    View.show_hidden_phrase(hidden_phrase)
     letters_tried = []
 
     number_of_wrong = 0
@@ -102,35 +86,30 @@ class Controller
 
     until done?(hidden_phrase, number_of_wrong)
       found_letter = false
-      puts "\e[H\e[2J"
-      score_multiplier = rand(1..100)
-      puts "Your score is: #{score}."
-      puts "Your multiplier for this round is #{score_multiplier}"
-      show_hidden_phrase(hidden_phrase)
-      puts "You've tried: #{letters_tried.join(" ")}"
-      puts number_of_wrong
-      puts "please guess one letter:"
-      print "> "
+      View.clear_screen
+      score_multiplier = rand(1..10)
+      View.show_score_multiplier(score, score_multiplier, @selected_category)
+      View.show_hidden_phrase(hidden_phrase)
+      View.tries(letters_tried)
+      View.ask_for_user_input
       users_guess = gets.chomp.downcase
       letters_tried << users_guess
+
 
       hidden_phrase.each do |letter|
         if letter.letter == users_guess
           letter.hidden = false
-
           found_letter = true
         end
       end
 
       if found_letter
         score += answer_phrase.count(users_guess) * score_multiplier
-      end
-
-      if !found_letter
-        number_of_wrong += 1
+      else
         score -= score_multiplier
       end
     end
+
     puts "answer: " + answer_phrase
     puts "Your final score: #{score}"
     save_user_score(score)
